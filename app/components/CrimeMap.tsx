@@ -24,6 +24,7 @@ interface CrimeMapProps {
 }
 
 export function CrimeMap({ data }: CrimeMapProps) {
+
   const layers = [
     new HeatmapLayer({
       id: 'heatmap-layer',

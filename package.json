@@ -10,10 +10,14 @@
   },
   "dependencies": {
     "@types/mapbox-gl": "^3.4.1",
+    "@types/pg": "^8.15.5",
     "@types/react-map-gl": "^6.1.7",
+    "@vercel/postgres": "^0.10.0",
     "deck.gl": "^9.1.14",
+    "dotenv": "^17.2.1",
     "mapbox-gl": "^3.14.0",
     "next": "15.4.5",
+    "pg": "^8.16.3",
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "react-map-gl": "^8.0.4"
