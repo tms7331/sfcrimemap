@@ -1,3 +1,7 @@
+'use client';
+
+import { Badge } from '@/components/ui/badge';
+
 interface CategoryStat {
   category: string;
   period1: number;
@@ -14,68 +18,95 @@ interface ComparisonTableProps {
 
 export function ComparisonTable({ stats, month1, month2 }: ComparisonTableProps) {
   return (
-    <div className="w-full bg-gray-800 rounded-lg p-4">
-      <h3 className="text-lg font-semibold mb-4 text-white">Category Comparison</h3>
-      <div className="overflow-x-auto">
-        <table className="w-full text-sm text-left text-gray-300">
-          <thead className="text-xs text-gray-400 uppercase bg-gray-700">
-            <tr>
-              <th scope="col" className="px-6 py-3">Category</th>
-              <th scope="col" className="px-6 py-3 text-right">{month1}</th>
-              <th scope="col" className="px-6 py-3 text-right">{month2}</th>
-              <th scope="col" className="px-6 py-3 text-right">Change</th>
-              <th scope="col" className="px-6 py-3 text-right">% Change</th>
+    <div className="w-full">
+      <div className="overflow-hidden rounded-lg border border-white/10">
+        <table className="w-full">
+          <thead>
+            <tr className="border-b border-white/10 bg-black/20">
+              <th className="px-6 py-4 text-left text-sm font-medium text-slate-300">
+                Category
+              </th>
+              <th className="px-6 py-4 text-center text-sm font-medium text-slate-300">
+                {month1}
+              </th>
+              <th className="px-6 py-4 text-center text-sm font-medium text-slate-300">
+                {month2}
+              </th>
+              <th className="px-6 py-4 text-center text-sm font-medium text-slate-300">
+                Change
+              </th>
+              <th className="px-6 py-4 text-center text-sm font-medium text-slate-300">
+                % Change
+              </th>
             </tr>
           </thead>
-          <tbody>
-            {stats.map((stat, index) => (
-              <tr key={stat.category} className={index % 2 === 0 ? 'bg-gray-900' : 'bg-gray-800'}>
-                <td className="px-6 py-4 font-medium text-white">
-                  {stat.category}
+          <tbody className="divide-y divide-white/5">
+            {stats.map((stat) => (
+              <tr key={stat.category} className="hover:bg-white/5 transition-colors duration-200">
+                <td className="px-6 py-4 text-sm font-medium text-white">
+                  <Badge variant="outline" className="bg-white/5 border-white/10">
+                    {stat.category}
+                  </Badge>
                 </td>
-                <td className="px-6 py-4 text-right">
+                <td className="px-6 py-4 text-sm text-center text-slate-300 font-mono">
                   {stat.period1.toLocaleString()}
                 </td>
-                <td className="px-6 py-4 text-right">
+                <td className="px-6 py-4 text-sm text-center text-slate-300 font-mono">
                   {stat.period2.toLocaleString()}
                 </td>
-                <td className={`px-6 py-4 text-right font-medium ${
-                  stat.change > 0 ? 'text-red-400' : stat.change < 0 ? 'text-green-400' : 'text-gray-400'
-                }`}>
-                  {stat.change > 0 ? '+' : ''}{stat.change.toLocaleString()}
+                <td className="px-6 py-4 text-sm text-center font-mono">
+                  <span className={`font-semibold ${
+                    stat.change > 0 ? 'text-red-400' : stat.change < 0 ? 'text-green-400' : 'text-slate-400'
+                  }`}>
+                    {stat.change > 0 ? '+' : ''}{stat.change.toLocaleString()}
+                  </span>
                 </td>
-                <td className={`px-6 py-4 text-right font-medium ${
-                  stat.change > 0 ? 'text-red-400' : stat.change < 0 ? 'text-green-400' : 'text-gray-400'
-                }`}>
-                  {stat.change > 0 ? '+' : ''}{stat.percentChange.toFixed(1)}%
+                <td className="px-6 py-4 text-sm text-center font-mono">
+                  <span className={`inline-flex items-center justify-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                    stat.change > 0 
+                      ? 'bg-red-500/10 text-red-400' 
+                      : stat.change < 0 
+                      ? 'bg-green-500/10 text-green-400' 
+                      : 'bg-slate-500/10 text-slate-400'
+                  }`}>
+                    {stat.change > 0 ? '+' : ''}{stat.percentChange.toFixed(1)}%
+                  </span>
                 </td>
               </tr>
             ))}
           </tbody>
-          <tfoot className="border-t border-gray-600">
-            <tr className="font-semibold bg-gray-700">
-              <td className="px-6 py-3 text-white">Total</td>
-              <td className="px-6 py-3 text-right text-white">
+          <tfoot>
+            <tr className="border-t border-white/10 bg-black/20">
+              <td className="px-6 py-4 text-sm font-semibold text-white">
+                Total
+              </td>
+              <td className="px-6 py-4 text-sm text-center font-semibold text-white font-mono">
                 {stats.reduce((sum, stat) => sum + stat.period1, 0).toLocaleString()}
               </td>
-              <td className="px-6 py-3 text-right text-white">
+              <td className="px-6 py-4 text-sm text-center font-semibold text-white font-mono">
                 {stats.reduce((sum, stat) => sum + stat.period2, 0).toLocaleString()}
               </td>
-              <td className={`px-6 py-3 text-right ${
-                stats.reduce((sum, stat) => sum + stat.change, 0) > 0 ? 'text-red-400' : 'text-green-400'
-              }`}>
-                {stats.reduce((sum, stat) => sum + stat.change, 0) > 0 ? '+' : ''}
-                {stats.reduce((sum, stat) => sum + stat.change, 0).toLocaleString()}
+              <td className="px-6 py-4 text-sm text-center font-mono">
+                <span className={`font-semibold ${
+                  stats.reduce((sum, stat) => sum + stat.change, 0) > 0 ? 'text-red-400' : 'text-green-400'
+                }`}>
+                  {stats.reduce((sum, stat) => sum + stat.change, 0) > 0 ? '+' : ''}
+                  {stats.reduce((sum, stat) => sum + stat.change, 0).toLocaleString()}
+                </span>
               </td>
-              <td className={`px-6 py-3 text-right ${
-                stats.reduce((sum, stat) => sum + stat.change, 0) > 0 ? 'text-red-400' : 'text-green-400'
-              }`}>
-                {(() => {
-                  const totalPeriod1 = stats.reduce((sum, stat) => sum + stat.period1, 0);
-                  const totalChange = stats.reduce((sum, stat) => sum + stat.change, 0);
-                  const percentChange = totalPeriod1 > 0 ? (totalChange / totalPeriod1) * 100 : 0;
-                  return `${totalChange > 0 ? '+' : ''}${percentChange.toFixed(1)}%`;
-                })()}
+              <td className="px-6 py-4 text-sm text-center font-mono">
+                <span className={`inline-flex items-center justify-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                  stats.reduce((sum, stat) => sum + stat.change, 0) > 0 
+                    ? 'bg-red-500/10 text-red-400' 
+                    : 'bg-green-500/10 text-green-400'
+                }`}>
+                  {(() => {
+                    const totalPeriod1 = stats.reduce((sum, stat) => sum + stat.period1, 0);
+                    const totalChange = stats.reduce((sum, stat) => sum + stat.change, 0);
+                    const percentChange = totalPeriod1 > 0 ? (totalChange / totalPeriod1) * 100 : 0;
+                    return `${totalChange > 0 ? '+' : ''}${percentChange.toFixed(1)}%`;
+                  })()}
+                </span>
               </td>
             </tr>
           </tfoot>

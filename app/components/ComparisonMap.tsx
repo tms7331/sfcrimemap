@@ -29,18 +29,29 @@ interface CategoryStat {
   percentChange: number;
 }
 
-export function ComparisonMap() {
-  const [month1, setMonth1] = useState<string>('2024-01');
-  const [month2, setMonth2] = useState<string>('2024-02');
+interface ComparisonMapProps {
+  month1?: string;
+  month2?: string;
+  hideControls?: boolean;
+}
+
+export function ComparisonMap({ month1 = '2024-01', month2 = '2024-02', hideControls = false }: ComparisonMapProps) {
+  const [internalMonth1, setInternalMonth1] = useState<string>(month1);
+  const [internalMonth2, setInternalMonth2] = useState<string>(month2);
   const [comparisonData, setComparisonData] = useState<ComparisonData[]>([]);
   const [categoryStats, setCategoryStats] = useState<CategoryStat[]>([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+    setInternalMonth1(month1);
+    setInternalMonth2(month2);
+  }, [month1, month2]);
+
+  useEffect(() => {
     const fetchComparisonData = async () => {
       setLoading(true);
       try {
-        const response = await fetch(`/api/comparison?month1=${month1}&month2=${month2}`);
+        const response = await fetch(`/api/comparison?month1=${internalMonth1}&month2=${internalMonth2}`);
         const data = await response.json();
         setComparisonData(data.heatmapData || []);
         setCategoryStats(data.categoryStats || []);
@@ -52,7 +63,7 @@ export function ComparisonMap() {
     };
 
     fetchComparisonData();
-  }, [month1, month2]);
+  }, [internalMonth1, internalMonth2]);
 
   const layers = [
     new HeatmapLayer({
@@ -91,61 +102,62 @@ export function ComparisonMap() {
 
   return (
     <div className="w-full">
-      <div className="mb-4 p-4 bg-gray-800 rounded-lg">
-        <h3 className="text-lg font-semibold mb-4 text-white">Crime Comparison Map</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label htmlFor="month1" className="block text-sm font-medium text-gray-300 mb-2">
-              First Period
-            </label>
-            <input
-              type="range"
-              id="month1"
-              min={0}
-              max={monthOptions.length - 1}
-              value={monthOptions.indexOf(month1)}
-              onChange={(e) => setMonth1(monthOptions[parseInt(e.target.value)])}
-              className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer"
-            />
-            <div className="text-center mt-1 text-gray-400">{month1}</div>
+      {!hideControls && (
+        <div className="mb-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label htmlFor="month1" className="block text-sm font-medium text-slate-300 mb-2">
+                First Period
+              </label>
+              <input
+                type="range"
+                id="month1"
+                min={0}
+                max={monthOptions.length - 1}
+                value={monthOptions.indexOf(internalMonth1)}
+                onChange={(e) => setInternalMonth1(monthOptions[parseInt(e.target.value)])}
+                className="w-full h-2 bg-white/10 rounded-lg appearance-none cursor-pointer"
+              />
+              <div className="text-center mt-1 text-slate-400">{internalMonth1}</div>
+            </div>
+            
+            <div>
+              <label htmlFor="month2" className="block text-sm font-medium text-slate-300 mb-2">
+                Second Period
+              </label>
+              <input
+                type="range"
+                id="month2"
+                min={0}
+                max={monthOptions.length - 1}
+                value={monthOptions.indexOf(internalMonth2)}
+                onChange={(e) => setInternalMonth2(monthOptions[parseInt(e.target.value)])}
+                className="w-full h-2 bg-white/10 rounded-lg appearance-none cursor-pointer"
+              />
+              <div className="text-center mt-1 text-slate-400">{internalMonth2}</div>
+            </div>
           </div>
-          
-          <div>
-            <label htmlFor="month2" className="block text-sm font-medium text-gray-300 mb-2">
-              Second Period
-            </label>
-            <input
-              type="range"
-              id="month2"
-              min={0}
-              max={monthOptions.length - 1}
-              value={monthOptions.indexOf(month2)}
-              onChange={(e) => setMonth2(monthOptions[parseInt(e.target.value)])}
-              className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer"
-            />
-            <div className="text-center mt-1 text-gray-400">{month2}</div>
-          </div>
-        </div>
         
-        <div className="mt-4 text-sm text-gray-400 text-center">
-          {loading ? 'Loading comparison data...' : `Showing difference: ${month2} minus ${month1}`}
-        </div>
+          <div className="mt-4 text-sm text-slate-400 text-center">
+            {loading ? 'Loading comparison data...' : `Showing difference: ${internalMonth2} minus ${internalMonth1}`}
+          </div>
         
         <div className="mt-2 flex justify-center items-center gap-4 text-xs">
           <div className="flex items-center gap-1">
             <div className="w-4 h-4 bg-green-500"></div>
-            <span className="text-gray-400">Decrease</span>
+            <span className="text-slate-400">Decrease</span>
           </div>
           <div className="flex items-center gap-1">
             <div className="w-4 h-4 bg-yellow-500"></div>
-            <span className="text-gray-400">No change</span>
+            <span className="text-slate-400">No change</span>
           </div>
           <div className="flex items-center gap-1">
             <div className="w-4 h-4 bg-red-500"></div>
-            <span className="text-gray-400">Increase</span>
+            <span className="text-slate-400">Increase</span>
+          </div>
           </div>
         </div>
-      </div>
+      )}
       
       <div className="h-[600px] relative rounded-lg overflow-hidden">
         <DeckGL
@@ -162,7 +174,7 @@ export function ComparisonMap() {
       
       {/* Comparison Table */}
       <div className="mt-6">
-        <ComparisonTable stats={categoryStats} month1={month1} month2={month2} />
+        <ComparisonTable stats={categoryStats} month1={internalMonth1} month2={internalMonth2} />
       </div>
     </div>
   );

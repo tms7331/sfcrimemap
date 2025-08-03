@@ -25,15 +25,16 @@ interface CategoryTrendData {
 }
 
 const COLORS: { [key: string]: string } = {
-  'Larceny Theft': '#e76f51',
-  'Motor Vehicle Theft': '#2a9d8f',
-  'Other Miscellaneous': '#264653',
-  'Assault': '#f4a261',
-  'Malicious Mischief': '#e9c46a',
-  'Drug Offense': '#457b9d',
-  'Warrant': '#1d3557',
-  'Burglary': '#f1faee',
-  'Robbery': '#a8dadc'
+  'Property Theft & Larceny': '#e76f51',
+  'Vehicle-Related Crimes': '#2a9d8f',
+  'Administrative & Investigative': '#264653',
+  'Physical Violence & Assault': '#f4a261',
+  'Property Damage': '#e9c46a',
+  'Drug & Public Order': '#457b9d',
+  'Burglary': '#1d3557',
+  'Robbery': '#f1faee',
+  'Financial Crimes': '#a8dadc',
+  'Sexual & Violent Crimes': '#ff006e'
 };
 
 export function CrimeCharts() {
@@ -77,11 +78,10 @@ export function CrimeCharts() {
   };
 
   return (
-    <div className="space-y-8 p-6 bg-gray-900 rounded-lg">
+    <div className="space-y-8">
       {/* Monthly Distribution Chart */}
       <div>
-        <h2 className="text-2xl font-bold text-white mb-2">Monthly Distribution</h2>
-        <p className="text-gray-400 mb-4">Incidents by month (2018-present)</p>
+        <h3 className="text-lg font-semibold text-white mb-4">Monthly Distribution</h3>
         <div className="h-64">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={monthlyData}>
@@ -108,8 +108,7 @@ export function CrimeCharts() {
 
       {/* Crime Trend by Category Chart */}
       <div>
-        <h2 className="text-2xl font-bold text-white mb-2">Crime Trend by Category</h2>
-        <p className="text-gray-400 mb-4">Distribution of top crime categories over time</p>
+        <h3 className="text-lg font-semibold text-white mb-4">Crime Trend by Category</h3>
         <div className="h-64">
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart data={categoryData}>
@@ -131,7 +130,7 @@ export function CrimeCharts() {
                 wrapperStyle={{ color: '#9CA3AF' }}
                 iconType="rect"
               />
-              {categories.map((category, _index) => (
+              {categories.map((category) => (
                 <Area
                   key={category}
                   type="monotone"
