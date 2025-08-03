@@ -3,35 +3,14 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { CalendarDays, MapPin, TrendingUp, TrendingDown, Minus } from "lucide-react"
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  AreaChart,
-  Area,
-  Legend,
-} from "recharts"
+
 import { useState, useEffect } from "react"
 import { CrimeMap } from "./components/CrimeMap"
 import { ComparisonMap } from "./components/ComparisonMap"
+import { MonthlyDistributionChart, CrimeTrendChart, MonthlyData, TrendData } from "./components/CrimeCharts"
 import UniqueLoading from "@/components/ui/morph-loading"
 
 // Type definitions
-interface MonthlyData {
-  month: string
-  incidents: number
-}
-
-interface TrendData {
-  month: string
-  date?: string
-  [key: string]: string | number | undefined
-}
-
 interface ComparisonData {
   category: string
   period1: number
@@ -42,18 +21,18 @@ interface ComparisonData {
 
 export default function Dashboard() {
   const [activeTab, setActiveTab] = useState<"historical" | "compare">("historical")
-  
+
   // Calculate current month and total months since 2018
   const currentDate = new Date()
   const currentYear = currentDate.getFullYear()
   const currentMonth = currentDate.getMonth() + 1
   const startYear = 2018
   const totalMonths = (currentYear - startYear) * 12 + currentMonth
-  
+
   // Set initial periods to January 2019 and July 2025
   const [firstPeriod, setFirstPeriod] = useState("2019-01")
   const [secondPeriod, setSecondPeriod] = useState("2025-07")
-  
+
   const [realMonthlyData, setRealMonthlyData] = useState<MonthlyData[]>([])
   const [monthlyLoading, setMonthlyLoading] = useState(true)
   const [realTrendData, setRealTrendData] = useState<TrendData[]>([])
@@ -71,7 +50,7 @@ export default function Dashboard() {
     const month = (monthsFromStart % 12) + 1
     return `${year}-${String(month).padStart(2, "0")}`
   }
-  
+
   const dateToSlider = (dateStr: string): number => {
     const [year, month] = dateStr.split("-").map(Number)
     return (year - startYear) * 12 + month
@@ -108,7 +87,7 @@ export default function Dashboard() {
           const result = await response.json()
           if (result.data) {
             // Format the data - need to extract month and limit data points
-            const formattedData = result.data.slice(-12).map((item: { date: string; [key: string]: string | number }) => ({
+            const formattedData = result.data.slice(-12).map((item: { date: string;[key: string]: string | number }) => ({
               month: new Date(item.date).toLocaleDateString('en-US', { month: 'short' }),
               ...item
             }))
@@ -146,7 +125,7 @@ export default function Dashboard() {
       setComparisonMapLoading(true)
       // Give the comparison map component time to mount and start loading
       setTimeout(() => setComparisonMapLoading(false), 500)
-      
+
       const fetchComparisonData = async () => {
         setComparisonLoading(true)
         try {
@@ -182,118 +161,10 @@ export default function Dashboard() {
       {/* Charts Column */}
       <div className="xl:col-span-1 flex flex-col gap-4 order-2 xl:order-1">
         {/* Monthly Distribution */}
-        <Card className="bg-white/5 backdrop-blur-md border border-white/10 hover:bg-white/10 transition-all duration-300">
-          <CardHeader className="pb-2">
-            <div className="flex items-center justify-between">
-              <div>
-                <CardTitle className="text-lg font-medium text-white">Monthly Distribution</CardTitle>
-                <CardDescription className="text-slate-400 text-sm">Incidents by month (2018-present)</CardDescription>
-              </div>
-              <Badge className="bg-blue-500/20 text-blue-300 border-blue-500/30 hover:bg-blue-500/30">
-                {monthlyLoading ? "Loading..." : "Live Data"}
-              </Badge>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="h-64 md:h-80">
-              {monthlyLoading ? (
-                <div className="flex items-center justify-center h-full">
-                  <UniqueLoading variant="morph" size="lg" />
-                </div>
-              ) : (
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={realMonthlyData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#374151" opacity={0.3} />
-                    <XAxis dataKey="month" stroke="#9CA3AF" fontSize={12} />
-                    <YAxis stroke="#9CA3AF" fontSize={12} />
-                    <Tooltip
-                      contentStyle={{
-                        backgroundColor: "rgba(17, 24, 39, 0.9)",
-                        border: "1px solid rgba(255, 255, 255, 0.1)",
-                        borderRadius: "8px",
-                        backdropFilter: "blur(10px)",
-                        color: "#fff",
-                      }}
-                    />
-                    <Bar dataKey="incidents" fill="#3B82F6" radius={[4, 4, 0, 0]} />
-                  </BarChart>
-                </ResponsiveContainer>
-              )}
-            </div>
-          </CardContent>
-        </Card>
+        <MonthlyDistributionChart data={realMonthlyData} loading={monthlyLoading} />
 
         {/* Crime Trend by Category */}
-        <Card className="bg-white/5 backdrop-blur-md border border-white/10 hover:bg-white/10 transition-all duration-300">
-          <CardHeader className="pb-2">
-            <div className="flex items-center justify-between">
-              <div>
-                <CardTitle className="text-lg font-medium text-white">Crime Trend by Category</CardTitle>
-                <CardDescription className="text-slate-400 text-sm">
-                  Distribution of top crime categories over time
-                </CardDescription>
-              </div>
-              <Badge className="bg-emerald-500/20 text-emerald-300 border-emerald-500/30 hover:bg-emerald-500/30">
-                {trendLoading ? "Loading..." : "Live Data"}
-              </Badge>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="h-80 md:h-96">
-              {trendLoading ? (
-                <div className="flex items-center justify-center h-full">
-                  <UniqueLoading variant="morph" size="lg" />
-                </div>
-              ) : (
-                <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={realTrendData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#374151" opacity={0.3} />
-                    <XAxis dataKey="month" stroke="#9CA3AF" fontSize={12} />
-                    <YAxis stroke="#9CA3AF" fontSize={12} />
-                    <Tooltip
-                      contentStyle={{
-                        backgroundColor: "rgba(17, 24, 39, 0.9)",
-                        border: "1px solid rgba(255, 255, 255, 0.1)",
-                        borderRadius: "8px",
-                        backdropFilter: "blur(10px)",
-                        color: "#fff",
-                      }}
-                    />
-                    <Legend />
-                    {/* Dynamically render areas based on available categories */}
-                    {realTrendData.length > 0 && Object.keys(realTrendData[0])
-                      .filter(key => key !== 'month' && key !== 'date')
-                      .map((category, index) => {
-                        const colors = [
-                          '#EF4444', // red
-                          '#F97316', // orange
-                          '#EAB308', // yellow
-                          '#22C55E', // green
-                          '#3B82F6', // blue
-                          '#8B5CF6', // purple
-                          '#EC4899', // pink
-                          '#14B8A6', // teal
-                          '#64748B', // slate
-                          '#F59E0B'  // amber
-                        ]
-                        return (
-                          <Area
-                            key={category}
-                            type="monotone"
-                            dataKey={category}
-                            stackId="1"
-                            stroke={colors[index % colors.length]}
-                            fill={colors[index % colors.length]}
-                            fillOpacity={0.6}
-                          />
-                        )
-                      })}
-                  </AreaChart>
-                </ResponsiveContainer>
-              )}
-            </div>
-          </CardContent>
-        </Card>
+        <CrimeTrendChart data={realTrendData} loading={trendLoading} />
       </div>
 
       {/* Heat Map Column */}
@@ -348,7 +219,7 @@ export default function Dashboard() {
               <div className="text-xs text-slate-400 mb-2">
                 Date Range: January 2018 - {new Date(currentYear, currentMonth - 1).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
               </div>
-              
+
               {/* First Period */}
               <div className="space-y-3">
                 <label className="text-sm font-medium text-slate-300">First Period</label>
@@ -537,8 +408,8 @@ export default function Dashboard() {
             <button
               onClick={() => setActiveTab("historical")}
               className={`py-3 px-2 border-b-2 font-medium text-sm transition-colors duration-200 ${activeTab === "historical"
-                  ? "border-blue-500 text-blue-400"
-                  : "border-transparent text-slate-400 hover:text-slate-200"
+                ? "border-blue-500 text-blue-400"
+                : "border-transparent text-slate-400 hover:text-slate-200"
                 }`}
             >
               Historical Data
@@ -546,8 +417,8 @@ export default function Dashboard() {
             <button
               onClick={() => setActiveTab("compare")}
               className={`py-3 px-2 border-b-2 font-medium text-sm transition-colors duration-200 ${activeTab === "compare"
-                  ? "border-blue-500 text-blue-400"
-                  : "border-transparent text-slate-400 hover:text-slate-200"
+                ? "border-blue-500 text-blue-400"
+                : "border-transparent text-slate-400 hover:text-slate-200"
                 }`}
             >
               Compare Data
