@@ -12,6 +12,7 @@
     "@types/mapbox-gl": "^3.4.1",
     "@types/pg": "^8.15.5",
     "@types/react-map-gl": "^6.1.7",
+    "@vercel/analytics": "^1.5.0",
     "@vercel/postgres": "^0.10.0",
     "deck.gl": "^9.1.14",
     "dotenv": "^17.2.1",
