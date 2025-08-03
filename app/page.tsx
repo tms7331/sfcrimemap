@@ -20,6 +20,26 @@ import { CrimeMap } from "./components/CrimeMap"
 import { ComparisonMap } from "./components/ComparisonMap"
 import UniqueLoading from "@/components/ui/morph-loading"
 
+// Type definitions
+interface MonthlyData {
+  month: string
+  incidents: number
+}
+
+interface TrendData {
+  month: string
+  date?: string
+  [key: string]: string | number | undefined
+}
+
+interface ComparisonData {
+  category: string
+  period1: number
+  period2: number
+  change: number
+  percentChange: number
+}
+
 export default function Dashboard() {
   const [activeTab, setActiveTab] = useState<"historical" | "compare">("historical")
   
@@ -34,13 +54,13 @@ export default function Dashboard() {
   const [firstPeriod, setFirstPeriod] = useState("2019-01")
   const [secondPeriod, setSecondPeriod] = useState("2025-07")
   
-  const [realMonthlyData, setRealMonthlyData] = useState<any[]>([])
+  const [realMonthlyData, setRealMonthlyData] = useState<MonthlyData[]>([])
   const [monthlyLoading, setMonthlyLoading] = useState(true)
-  const [realTrendData, setRealTrendData] = useState<any[]>([])
+  const [realTrendData, setRealTrendData] = useState<TrendData[]>([])
   const [trendLoading, setTrendLoading] = useState(true)
   const [mapData, setMapData] = useState<{ longitude: number; latitude: number; weight: number }[]>([])
   const [mapLoading, setMapLoading] = useState(true)
-  const [comparisonData, setComparisonData] = useState<any[]>([])
+  const [comparisonData, setComparisonData] = useState<ComparisonData[]>([])
   const [comparisonLoading, setComparisonLoading] = useState(true)
   const [comparisonMapLoading, setComparisonMapLoading] = useState(true)
 
