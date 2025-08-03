@@ -349,15 +349,15 @@ export default function Dashboard() {
                 </p>
                 <div className="flex flex-col space-y-3 text-xs">
                   <div className="flex items-center space-x-2">
-                    <div className="w-3 h-3 bg-emerald-500 rounded-full"></div>
+                    <div className="w-3 h-3 rounded-full" style={{ backgroundColor: 'rgb(65, 182, 196)' }}></div>
                     <span className="text-slate-300">Decrease</span>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
+                    <div className="w-3 h-3 rounded-full" style={{ backgroundColor: 'rgb(255, 255, 255)', border: '1px solid rgb(148, 163, 184)' }}></div>
                     <span className="text-slate-300">No change</span>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <div className="w-3 h-3 bg-red-500 rounded-full"></div>
+                    <div className="w-3 h-3 rounded-full" style={{ backgroundColor: 'rgb(255, 20, 50)' }}></div>
                     <span className="text-slate-300">Increase</span>
                   </div>
                 </div>

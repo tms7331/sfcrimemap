@@ -70,17 +70,19 @@ export function ComparisonMap({ month1 = '2024-01', month2 = '2024-02', hideCont
       id: 'comparison-heatmap-layer',
       data: comparisonData,
       getPosition: (d: ComparisonData) => [d.longitude, d.latitude],
-      getWeight: (d: ComparisonData) => Math.abs(d.weight),
-      radiusPixels: 40,
+      getWeight: (d: ComparisonData) => d.weight,
+      radiusPixels: 50,
+      intensity: 1.2,
+      threshold: 0.02,
       colorRange: [
-        [0, 255, 0, 0],     // Transparent green
-        [0, 255, 0, 25],    // Light green (decrease)
-        [0, 255, 0, 128],   // Medium green (decrease)
-        [255, 255, 0, 128], // Yellow (neutral)
-        [255, 128, 0, 128], // Orange (increase)
-        [255, 0, 0, 255]    // Red (high increase)
+        [65, 182, 196, 180],   // Teal for strong decrease
+        [50, 166, 240, 140],   // Blue for moderate decrease
+        [94, 79, 162, 100],    // Purple for slight decrease
+        [255, 255, 255, 50],   // White/transparent for no change
+        [236, 64, 122, 140],   // Pink for moderate increase
+        [255, 20, 50, 200],    // Red for strong increase
       ],
-      weightRange: [0, 10],
+      weightRange: [-10, 10],
     })
   ];
 
