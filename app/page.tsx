@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { CrimeMap } from './components/CrimeMap';
 import { CrimeCharts } from './components/CrimeCharts';
+import { ComparisonMap } from './components/ComparisonMap';
 
 interface HeatmapData {
   longitude: number;
@@ -55,15 +56,23 @@ export default function Home() {
   }
 
   return (
-    <main className="h-screen w-full flex">
-      {/* Map Section - 2/3 of screen */}
-      <div className="flex-1 relative">
-        <CrimeMap data={crimeData} />
+    <main className="min-h-screen w-full">
+      {/* Original Map and Charts Section */}
+      <div className="h-screen flex">
+        {/* Map Section - 2/3 of screen */}
+        <div className="flex-1 relative">
+          <CrimeMap data={crimeData} />
+        </div>
+        
+        {/* Charts Section - 1/3 of screen */}
+        <div className="w-1/3 bg-gray-800 overflow-y-auto">
+          <CrimeCharts />
+        </div>
       </div>
       
-      {/* Charts Section - 1/3 of screen */}
-      <div className="w-1/3 bg-gray-800 overflow-y-auto">
-        <CrimeCharts />
+      {/* Comparison Map Section */}
+      <div className="w-full p-6 bg-gray-900">
+        <ComparisonMap />
       </div>
     </main>
   );
