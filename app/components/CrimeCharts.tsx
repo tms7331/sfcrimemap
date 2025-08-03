@@ -12,7 +12,6 @@ import {
   ResponsiveContainer,
   AreaChart,
   Area,
-  Legend,
 } from "recharts"
 import UniqueLoading from "@/components/ui/morph-loading"
 
@@ -60,7 +59,7 @@ export function MonthlyDistributionChart({ data, loading }: MonthlyDistributionC
             </div>
           ) : (
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={data} margin={{ top: 10, right: 10, left: -20, bottom: 5 }}>
+              <BarChart data={data} margin={{ top: 10, right: 10, left: -10, bottom: 5 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#374151" opacity={0.3} />
                 <XAxis dataKey="month" stroke="#9CA3AF" fontSize={12} />
                 <YAxis stroke="#9CA3AF" fontSize={12} />
@@ -109,7 +108,7 @@ export function CrimeTrendChart({ data, loading }: CrimeTrendChartProps) {
             <>
               <div className="h-64 md:h-80">
                 <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={data} margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
+                  <AreaChart data={data} margin={{ top: 10, right: 10, left: -10, bottom: 5 }}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#374151" opacity={0.3} />
                     <XAxis dataKey="month" stroke="#9CA3AF" fontSize={12} />
                     <YAxis stroke="#9CA3AF" fontSize={12} />
