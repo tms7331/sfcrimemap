@@ -99,15 +99,15 @@ function calculateCategoryStats(incidents1: CrimeIncident[], incidents2: CrimeIn
   // Count incidents by category for period 1
   const categoryCounts1 = new Map<string, number>();
   incidents1.forEach(incident => {
-    const count = categoryCounts1.get(incident.incident_category) || 0;
-    categoryCounts1.set(incident.incident_category, count + 1);
+    const count = categoryCounts1.get(incident.incident_category_custom) || 0;
+    categoryCounts1.set(incident.incident_category_custom, count + 1);
   });
 
   // Count incidents by category for period 2
   const categoryCounts2 = new Map<string, number>();
   incidents2.forEach(incident => {
-    const count = categoryCounts2.get(incident.incident_category) || 0;
-    categoryCounts2.set(incident.incident_category, count + 1);
+    const count = categoryCounts2.get(incident.incident_category_custom) || 0;
+    categoryCounts2.set(incident.incident_category_custom, count + 1);
   });
 
   // Get all unique categories
