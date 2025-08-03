@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getIncidentsByDateRange } from '@/app/lib/database';
-import { CrimeIncident } from '@/app/lib/generateFakeData';
+import { getIncidentsByDateRange, CrimeIncident } from '@/app/lib/database';
 
 interface IncidentCount {
   longitude: number;
@@ -10,11 +9,11 @@ interface IncidentCount {
 
 function aggregateIncidentsByLocation(incidents: CrimeIncident[]): Map<string, IncidentCount> {
   const locationMap = new Map<string, IncidentCount>();
-  
+
   incidents.forEach(incident => {
     const key = `${incident.longitude},${incident.latitude}`;
     const existing = locationMap.get(key);
-    
+
     if (existing) {
       existing.count++;
     } else {
@@ -25,7 +24,7 @@ function aggregateIncidentsByLocation(incidents: CrimeIncident[]): Map<string, I
       });
     }
   });
-  
+
   return locationMap;
 }
 
@@ -47,7 +46,7 @@ export async function GET(request: Request) {
     // Get last days of months
     const lastDay1 = getLastDayOfMonth(month1);
     const lastDay2 = getLastDayOfMonth(month2);
-    
+
     // Fetch incidents for both months
     const [incidents1, incidents2] = await Promise.all([
       getIncidentsByDateRange(
@@ -65,14 +64,14 @@ export async function GET(request: Request) {
     const locationMap2 = aggregateIncidentsByLocation(incidents2);
 
     // Calculate differences
-    const comparisonData: Array<{longitude: number; latitude: number; weight: number}> = [];
+    const comparisonData: Array<{ longitude: number; latitude: number; weight: number }> = [];
     const allLocations = new Set([...locationMap1.keys(), ...locationMap2.keys()]);
 
     allLocations.forEach(locationKey => {
       const count1 = locationMap1.get(locationKey)?.count || 0;
       const count2 = locationMap2.get(locationKey)?.count || 0;
       const difference = count2 - count1;
-      
+
       if (difference !== 0) {
         const [lng, lat] = locationKey.split(',').map(Number);
         comparisonData.push({
@@ -85,7 +84,7 @@ export async function GET(request: Request) {
 
     // Calculate category statistics
     const categoryStats = calculateCategoryStats(incidents1, incidents2);
-    
+
     return NextResponse.json({
       heatmapData: comparisonData,
       categoryStats
@@ -103,24 +102,24 @@ function calculateCategoryStats(incidents1: CrimeIncident[], incidents2: CrimeIn
     const count = categoryCounts1.get(incident.incident_category) || 0;
     categoryCounts1.set(incident.incident_category, count + 1);
   });
-  
+
   // Count incidents by category for period 2
   const categoryCounts2 = new Map<string, number>();
   incidents2.forEach(incident => {
     const count = categoryCounts2.get(incident.incident_category) || 0;
     categoryCounts2.set(incident.incident_category, count + 1);
   });
-  
+
   // Get all unique categories
   const allCategories = new Set([...categoryCounts1.keys(), ...categoryCounts2.keys()]);
-  
+
   // Build comparison stats
   const stats = Array.from(allCategories).map(category => {
     const period1Count = categoryCounts1.get(category) || 0;
     const period2Count = categoryCounts2.get(category) || 0;
     const change = period2Count - period1Count;
     const percentChange = period1Count > 0 ? ((change / period1Count) * 100) : (period2Count > 0 ? 100 : 0);
-    
+
     return {
       category,
       period1: period1Count,
@@ -129,7 +128,7 @@ function calculateCategoryStats(incidents1: CrimeIncident[], incidents2: CrimeIn
       percentChange
     };
   });
-  
+
   // Sort by absolute change (descending)
   return stats.sort((a, b) => Math.abs(b.change) - Math.abs(a.change));
 }

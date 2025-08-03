@@ -24,7 +24,7 @@ interface CategoryTrendData {
   [category: string]: string | number;
 }
 
-const COLORS = {
+const COLORS: { [key: string]: string } = {
   'Larceny Theft': '#e76f51',
   'Motor Vehicle Theft': '#2a9d8f',
   'Other Miscellaneous': '#264653',
@@ -47,10 +47,10 @@ export function CrimeCharts() {
       try {
         const response = await fetch('/api/charts');
         const result = await response.json();
-        
+
         setMonthlyData(result.monthly);
         setCategoryData(result.categoryTrends);
-        
+
         // Extract categories from the first data point
         if (result.categoryTrends.length > 0) {
           const cats = Object.keys(result.categoryTrends[0]).filter(key => key !== 'date');
@@ -81,20 +81,20 @@ export function CrimeCharts() {
       {/* Monthly Distribution Chart */}
       <div>
         <h2 className="text-2xl font-bold text-white mb-2">Monthly Distribution</h2>
-        <p className="text-gray-400 mb-4">Incidents by month (2018-2025)</p>
+        <p className="text-gray-400 mb-4">Incidents by month (2018-present)</p>
         <div className="h-64">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={monthlyData}>
               <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-              <XAxis 
-                dataKey="date" 
+              <XAxis
+                dataKey="date"
                 stroke="#9CA3AF"
                 tick={{ fill: '#9CA3AF' }}
                 tickFormatter={formatDate}
                 interval={6}
               />
               <YAxis stroke="#9CA3AF" tick={{ fill: '#9CA3AF' }} />
-              <Tooltip 
+              <Tooltip
                 contentStyle={{ backgroundColor: '#1F2937', border: 'none' }}
                 labelStyle={{ color: '#9CA3AF' }}
                 formatter={(value) => [`${value} incidents`, 'Count']}
@@ -114,24 +114,24 @@ export function CrimeCharts() {
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart data={categoryData}>
               <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-              <XAxis 
-                dataKey="date" 
+              <XAxis
+                dataKey="date"
                 stroke="#9CA3AF"
                 tick={{ fill: '#9CA3AF' }}
                 tickFormatter={formatDate}
                 interval={6}
               />
               <YAxis stroke="#9CA3AF" tick={{ fill: '#9CA3AF' }} />
-              <Tooltip 
+              <Tooltip
                 contentStyle={{ backgroundColor: '#1F2937', border: 'none' }}
                 labelStyle={{ color: '#9CA3AF' }}
                 labelFormatter={(label) => formatDate(label)}
               />
-              <Legend 
+              <Legend
                 wrapperStyle={{ color: '#9CA3AF' }}
                 iconType="rect"
               />
-              {categories.map((category, index) => (
+              {categories.map((category, _index) => (
                 <Area
                   key={category}
                   type="monotone"
