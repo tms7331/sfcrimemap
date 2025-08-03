@@ -4,7 +4,7 @@ An interactive web application for visualizing crime data in San Francisco using
 
 ## Screenshot
 
-![Crime Map Screenshot](screenshot.png)
+![Crime Map Screenshot](public/sfcrimedata.png)
 
 ## Features
 
