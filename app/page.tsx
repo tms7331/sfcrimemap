@@ -132,8 +132,8 @@ export default function Dashboard() {
         try {
           const response = await fetch(`/api/comparison?month1=${firstPeriod}&month2=${secondPeriod}`)
           const result = await response.json()
-          if (result.data) {
-            setComparisonData(result.data)
+          if (result.categoryStats) {
+            setComparisonData(result.categoryStats)
           }
         } catch (error) {
           console.error('Error fetching comparison data:', error)
