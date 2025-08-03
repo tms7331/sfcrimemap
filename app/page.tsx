@@ -18,49 +18,7 @@ import {
 import { useState, useEffect } from "react"
 import { CrimeMap } from "./components/CrimeMap"
 import { ComparisonMap } from "./components/ComparisonMap"
-
-// Mock data for monthly distribution
-const monthlyData = [
-  { month: "Jan", incidents: 8500 },
-  { month: "Feb", incidents: 7800 },
-  { month: "Mar", incidents: 9200 },
-  { month: "Apr", incidents: 8900 },
-  { month: "May", incidents: 9800 },
-  { month: "Jun", incidents: 10500 },
-  { month: "Jul", incidents: 11200 },
-  { month: "Aug", incidents: 10800 },
-  { month: "Sep", incidents: 9600 },
-  { month: "Oct", incidents: 9100 },
-  { month: "Nov", incidents: 8400 },
-  { month: "Dec", incidents: 7900 },
-]
-
-// Mock data for crime trends by category
-const trendData = [
-  { month: "Jan", theft: 3200, assault: 1800, burglary: 1200, vandalism: 900, drug: 800, other: 600 },
-  { month: "Feb", theft: 2900, assault: 1600, burglary: 1100, vandalism: 850, drug: 750, other: 600 },
-  { month: "Mar", theft: 3500, assault: 2000, burglary: 1300, vandalism: 1000, drug: 900, other: 500 },
-  { month: "Apr", theft: 3300, assault: 1900, burglary: 1250, vandalism: 950, drug: 850, other: 650 },
-  { month: "May", theft: 3800, assault: 2100, burglary: 1400, vandalism: 1100, drug: 900, other: 500 },
-  { month: "Jun", theft: 4200, assault: 2300, burglary: 1500, vandalism: 1200, drug: 950, other: 350 },
-  { month: "Jul", theft: 4500, assault: 2400, burglary: 1600, vandalism: 1300, drug: 1000, other: 400 },
-  { month: "Aug", theft: 4300, assault: 2200, burglary: 1550, vandalism: 1250, drug: 950, other: 550 },
-  { month: "Sep", theft: 3900, assault: 2000, burglary: 1400, vandalism: 1100, drug: 850, other: 350 },
-  { month: "Oct", theft: 3600, assault: 1850, burglary: 1300, vandalism: 1000, drug: 800, other: 550 },
-  { month: "Nov", theft: 3300, assault: 1700, burglary: 1200, vandalism: 900, drug: 750, other: 550 },
-  { month: "Dec", theft: 3100, assault: 1600, burglary: 1100, vandalism: 800, drug: 700, other: 600 },
-]
-
-// Mock comparison data
-const comparisonData = [
-  { category: "Larceny Theft", period1: 1240, period2: 1309, change: 69, percentChange: 5.6 },
-  { category: "Disorderly Conduct", period1: 164, period2: 115, change: -49, percentChange: -29.9 },
-  { category: "Warrant", period1: 170, period2: 216, change: 46, percentChange: 27.1 },
-  { category: "Drug Offense", period1: 197, period2: 156, change: -41, percentChange: -20.8 },
-  { category: "Missing Person", period1: 148, period2: 114, change: -34, percentChange: -23.0 },
-  { category: "Arson", period1: 17, period2: 45, change: 28, percentChange: 164.7 },
-  { category: "Suspicious Occ", period1: 138, period2: 115, change: -23, percentChange: -16.7 },
-]
+import UniqueLoading from "@/components/ui/morph-loading"
 
 export default function Dashboard() {
   const [activeTab, setActiveTab] = useState<"historical" | "compare">("historical")
@@ -76,12 +34,15 @@ export default function Dashboard() {
   const [firstPeriod, setFirstPeriod] = useState("2019-01")
   const [secondPeriod, setSecondPeriod] = useState("2025-07")
   
-  const [realMonthlyData, setRealMonthlyData] = useState(monthlyData)
-  const [monthlyLoading, setMonthlyLoading] = useState(false)
-  const [realTrendData, setRealTrendData] = useState(trendData)
-  const [trendLoading, setTrendLoading] = useState(false)
+  const [realMonthlyData, setRealMonthlyData] = useState<any[]>([])
+  const [monthlyLoading, setMonthlyLoading] = useState(true)
+  const [realTrendData, setRealTrendData] = useState<any[]>([])
+  const [trendLoading, setTrendLoading] = useState(true)
   const [mapData, setMapData] = useState<{ longitude: number; latitude: number; weight: number }[]>([])
-  const [mapLoading, setMapLoading] = useState(false)
+  const [mapLoading, setMapLoading] = useState(true)
+  const [comparisonData, setComparisonData] = useState<any[]>([])
+  const [comparisonLoading, setComparisonLoading] = useState(true)
+  const [comparisonMapLoading, setComparisonMapLoading] = useState(true)
 
   // Helper functions to convert between slider value and date
   const sliderToDate = (value: number): string => {
@@ -160,6 +121,30 @@ export default function Dashboard() {
     }
   }, [activeTab])
 
+  useEffect(() => {
+    if (activeTab === "compare") {
+      setComparisonMapLoading(true)
+      // Give the comparison map component time to mount and start loading
+      setTimeout(() => setComparisonMapLoading(false), 500)
+      
+      const fetchComparisonData = async () => {
+        setComparisonLoading(true)
+        try {
+          const response = await fetch(`/api/comparison?month1=${firstPeriod}&month2=${secondPeriod}`)
+          const result = await response.json()
+          if (result.data) {
+            setComparisonData(result.data)
+          }
+        } catch (error) {
+          console.error('Error fetching comparison data:', error)
+        } finally {
+          setComparisonLoading(false)
+        }
+      }
+      fetchComparisonData()
+    }
+  }, [activeTab, firstPeriod, secondPeriod])
+
   const getTrendIcon = (change: number) => {
     if (change > 0) return <TrendingUp className="h-4 w-4 text-red-400" />
     if (change < 0) return <TrendingDown className="h-4 w-4 text-emerald-400" />
@@ -191,23 +176,29 @@ export default function Dashboard() {
           </CardHeader>
           <CardContent>
             <div className="h-64 md:h-80">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={realMonthlyData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#374151" opacity={0.3} />
-                  <XAxis dataKey="month" stroke="#9CA3AF" fontSize={12} />
-                  <YAxis stroke="#9CA3AF" fontSize={12} />
-                  <Tooltip
-                    contentStyle={{
-                      backgroundColor: "rgba(17, 24, 39, 0.9)",
-                      border: "1px solid rgba(255, 255, 255, 0.1)",
-                      borderRadius: "8px",
-                      backdropFilter: "blur(10px)",
-                      color: "#fff",
-                    }}
-                  />
-                  <Bar dataKey="incidents" fill="#3B82F6" radius={[4, 4, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
+              {monthlyLoading ? (
+                <div className="flex items-center justify-center h-full">
+                  <UniqueLoading variant="morph" size="lg" />
+                </div>
+              ) : (
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={realMonthlyData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#374151" opacity={0.3} />
+                    <XAxis dataKey="month" stroke="#9CA3AF" fontSize={12} />
+                    <YAxis stroke="#9CA3AF" fontSize={12} />
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: "rgba(17, 24, 39, 0.9)",
+                        border: "1px solid rgba(255, 255, 255, 0.1)",
+                        borderRadius: "8px",
+                        backdropFilter: "blur(10px)",
+                        color: "#fff",
+                      }}
+                    />
+                    <Bar dataKey="incidents" fill="#3B82F6" radius={[4, 4, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              )}
             </div>
           </CardContent>
         </Card>
@@ -229,51 +220,57 @@ export default function Dashboard() {
           </CardHeader>
           <CardContent>
             <div className="h-80 md:h-96">
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={realTrendData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#374151" opacity={0.3} />
-                  <XAxis dataKey="month" stroke="#9CA3AF" fontSize={12} />
-                  <YAxis stroke="#9CA3AF" fontSize={12} />
-                  <Tooltip
-                    contentStyle={{
-                      backgroundColor: "rgba(17, 24, 39, 0.9)",
-                      border: "1px solid rgba(255, 255, 255, 0.1)",
-                      borderRadius: "8px",
-                      backdropFilter: "blur(10px)",
-                      color: "#fff",
-                    }}
-                  />
-                  <Legend />
-                  {/* Dynamically render areas based on available categories */}
-                  {realTrendData.length > 0 && Object.keys(realTrendData[0])
-                    .filter(key => key !== 'month' && key !== 'date')
-                    .map((category, index) => {
-                      const colors = [
-                        '#EF4444', // red
-                        '#F97316', // orange
-                        '#EAB308', // yellow
-                        '#22C55E', // green
-                        '#3B82F6', // blue
-                        '#8B5CF6', // purple
-                        '#EC4899', // pink
-                        '#14B8A6', // teal
-                        '#64748B', // slate
-                        '#F59E0B'  // amber
-                      ]
-                      return (
-                        <Area
-                          key={category}
-                          type="monotone"
-                          dataKey={category}
-                          stackId="1"
-                          stroke={colors[index % colors.length]}
-                          fill={colors[index % colors.length]}
-                          fillOpacity={0.6}
-                        />
-                      )
-                    })}
-                </AreaChart>
-              </ResponsiveContainer>
+              {trendLoading ? (
+                <div className="flex items-center justify-center h-full">
+                  <UniqueLoading variant="morph" size="lg" />
+                </div>
+              ) : (
+                <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart data={realTrendData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#374151" opacity={0.3} />
+                    <XAxis dataKey="month" stroke="#9CA3AF" fontSize={12} />
+                    <YAxis stroke="#9CA3AF" fontSize={12} />
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: "rgba(17, 24, 39, 0.9)",
+                        border: "1px solid rgba(255, 255, 255, 0.1)",
+                        borderRadius: "8px",
+                        backdropFilter: "blur(10px)",
+                        color: "#fff",
+                      }}
+                    />
+                    <Legend />
+                    {/* Dynamically render areas based on available categories */}
+                    {realTrendData.length > 0 && Object.keys(realTrendData[0])
+                      .filter(key => key !== 'month' && key !== 'date')
+                      .map((category, index) => {
+                        const colors = [
+                          '#EF4444', // red
+                          '#F97316', // orange
+                          '#EAB308', // yellow
+                          '#22C55E', // green
+                          '#3B82F6', // blue
+                          '#8B5CF6', // purple
+                          '#EC4899', // pink
+                          '#14B8A6', // teal
+                          '#64748B', // slate
+                          '#F59E0B'  // amber
+                        ]
+                        return (
+                          <Area
+                            key={category}
+                            type="monotone"
+                            dataKey={category}
+                            stackId="1"
+                            stroke={colors[index % colors.length]}
+                            fill={colors[index % colors.length]}
+                            fillOpacity={0.6}
+                          />
+                        )
+                      })}
+                  </AreaChart>
+                </ResponsiveContainer>
+              )}
             </div>
           </CardContent>
         </Card>
@@ -300,7 +297,7 @@ export default function Dashboard() {
             <div className="relative h-[400px] md:h-[500px] xl:h-full rounded-lg overflow-hidden border border-white/5">
               {mapLoading ? (
                 <div className="absolute inset-0 flex items-center justify-center bg-slate-900/50">
-                  <div className="text-white">Loading map...</div>
+                  <UniqueLoading variant="morph" size="lg" />
                 </div>
               ) : (
                 <CrimeMap data={mapData} />
@@ -412,7 +409,13 @@ export default function Dashboard() {
             </CardHeader>
             <CardContent className="flex-1 p-4">
               <div className="relative h-[400px] md:h-[500px] xl:h-full rounded-lg overflow-hidden border border-white/5">
-                <ComparisonMap month1={firstPeriod} month2={secondPeriod} hideControls={true} />
+                {comparisonMapLoading ? (
+                  <div className="absolute inset-0 flex items-center justify-center bg-slate-900/50">
+                    <UniqueLoading variant="morph" size="lg" />
+                  </div>
+                ) : (
+                  <ComparisonMap month1={firstPeriod} month2={secondPeriod} hideControls={true} />
+                )}
               </div>
             </CardContent>
           </Card>
@@ -425,56 +428,62 @@ export default function Dashboard() {
           <CardTitle className="text-xl font-medium text-white">Category Comparison</CardTitle>
         </CardHeader>
         <CardContent className="p-0">
-          <div className="overflow-hidden">
-            <table className="w-full">
-              <thead>
-                <tr className="bg-white/5 border-b border-white/10">
-                  <th className="px-6 py-4 text-left text-sm font-medium text-slate-300 uppercase tracking-wider">
-                    Category
-                  </th>
-                  <th className="px-6 py-4 text-center text-sm font-medium text-slate-300 uppercase tracking-wider">
-                    {firstPeriod}
-                  </th>
-                  <th className="px-6 py-4 text-center text-sm font-medium text-slate-300 uppercase tracking-wider">
-                    {secondPeriod}
-                  </th>
-                  <th className="px-6 py-4 text-center text-sm font-medium text-slate-300 uppercase tracking-wider">
-                    Change
-                  </th>
-                  <th className="px-6 py-4 text-center text-sm font-medium text-slate-300 uppercase tracking-wider">
-                    % Change
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-white/5">
-                {comparisonData.map((row) => (
-                  <tr key={row.category} className="hover:bg-white/5 transition-colors duration-200">
-                    <td className="px-6 py-4 text-sm font-medium text-white">{row.category}</td>
-                    <td className="px-6 py-4 text-sm text-center text-slate-300 font-mono">
-                      {row.period1.toLocaleString()}
-                    </td>
-                    <td className="px-6 py-4 text-sm text-center text-slate-300 font-mono">
-                      {row.period2.toLocaleString()}
-                    </td>
-                    <td className="px-6 py-4 text-sm text-center">
-                      <span className={`font-medium font-mono ${getTrendColor(row.change)}`}>
-                        {row.change > 0 ? "+" : ""}{row.change}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 text-sm text-center">
-                      <div className="flex items-center justify-center space-x-2">
-                        {getTrendIcon(row.change)}
-                        <span className={`font-medium font-mono ${getTrendColor(row.change)}`}>
-                          {row.percentChange > 0 ? "+" : ""}
-                          {row.percentChange.toFixed(1)}%
-                        </span>
-                      </div>
-                    </td>
+          {comparisonLoading ? (
+            <div className="flex items-center justify-center h-64">
+              <UniqueLoading variant="morph" size="lg" />
+            </div>
+          ) : (
+            <div className="overflow-hidden">
+              <table className="w-full">
+                <thead>
+                  <tr className="bg-white/5 border-b border-white/10">
+                    <th className="px-6 py-4 text-left text-sm font-medium text-slate-300 uppercase tracking-wider">
+                      Category
+                    </th>
+                    <th className="px-6 py-4 text-center text-sm font-medium text-slate-300 uppercase tracking-wider">
+                      {firstPeriod}
+                    </th>
+                    <th className="px-6 py-4 text-center text-sm font-medium text-slate-300 uppercase tracking-wider">
+                      {secondPeriod}
+                    </th>
+                    <th className="px-6 py-4 text-center text-sm font-medium text-slate-300 uppercase tracking-wider">
+                      Change
+                    </th>
+                    <th className="px-6 py-4 text-center text-sm font-medium text-slate-300 uppercase tracking-wider">
+                      % Change
+                    </th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody className="divide-y divide-white/5">
+                  {comparisonData.map((row) => (
+                    <tr key={row.category} className="hover:bg-white/5 transition-colors duration-200">
+                      <td className="px-6 py-4 text-sm font-medium text-white">{row.category}</td>
+                      <td className="px-6 py-4 text-sm text-center text-slate-300 font-mono">
+                        {row.period1.toLocaleString()}
+                      </td>
+                      <td className="px-6 py-4 text-sm text-center text-slate-300 font-mono">
+                        {row.period2.toLocaleString()}
+                      </td>
+                      <td className="px-6 py-4 text-sm text-center">
+                        <span className={`font-medium font-mono ${getTrendColor(row.change)}`}>
+                          {row.change > 0 ? "+" : ""}{row.change}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 text-sm text-center">
+                        <div className="flex items-center justify-center space-x-2">
+                          {getTrendIcon(row.change)}
+                          <span className={`font-medium font-mono ${getTrendColor(row.change)}`}>
+                            {row.percentChange > 0 ? "+" : ""}
+                            {row.percentChange.toFixed(1)}%
+                          </span>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>
