@@ -292,10 +292,10 @@ export default function Dashboard() {
   const renderCompareData = () => (
     <div className="space-y-4">
       {/* Comparison Controls and Map Grid */}
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-4 xl:items-stretch">
         {/* Select Period Controls - Left side on large screens */}
-        <div className="xl:col-span-1 order-2 xl:order-1">
-          <Card className="bg-white/5 backdrop-blur-md border border-white/10 hover:bg-white/10 transition-all duration-300">
+        <div className="xl:col-span-1 order-2 xl:order-1 flex">
+          <Card className="bg-white/5 backdrop-blur-md border border-white/10 hover:bg-white/10 transition-all duration-300 flex-1 flex flex-col">
             <CardHeader className="pb-2">
               <div className="flex items-center justify-between">
                 <div>
@@ -304,7 +304,7 @@ export default function Dashboard() {
                 </div>
               </div>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-4 flex-1">
               {/* First Period */}
               <div className="space-y-3">
                 <label className="text-sm font-medium text-slate-300">First Period</label>
@@ -367,8 +367,8 @@ export default function Dashboard() {
         </div>
 
         {/* Crime Comparison Map - Right side on large screens */}
-        <div className="xl:col-span-2 order-1 xl:order-2">
-          <Card className="bg-white/5 backdrop-blur-md border border-white/10 hover:bg-white/10 transition-all duration-300">
+        <div className="xl:col-span-2 order-1 xl:order-2 flex">
+          <Card className="bg-white/5 backdrop-blur-md border border-white/10 hover:bg-white/10 transition-all duration-300 flex-1 flex flex-col">
             <CardHeader className="pb-2">
               <div className="flex items-center justify-between">
                 <div>
@@ -383,8 +383,8 @@ export default function Dashboard() {
                 </Badge>
               </div>
             </CardHeader>
-            <CardContent>
-              <div className="relative h-[400px] md:h-[500px] xl:h-[600px] rounded-lg overflow-hidden border border-white/5">
+            <CardContent className="flex-1 p-4">
+              <div className="relative h-[400px] md:h-[500px] xl:h-full rounded-lg overflow-hidden border border-white/5">
                 <ComparisonMap month1={firstPeriod} month2={secondPeriod} hideControls={true} />
               </div>
             </CardContent>

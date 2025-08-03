@@ -101,7 +101,7 @@ export function ComparisonMap({ month1 = '2024-01', month2 = '2024-02', hideCont
   const monthOptions = generateMonthOptions();
 
   return (
-    <div className="w-full">
+    <div className="w-full h-full flex flex-col">
       {!hideControls && (
         <div className="mb-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -159,7 +159,7 @@ export function ComparisonMap({ month1 = '2024-01', month2 = '2024-02', hideCont
         </div>
       )}
       
-      <div className="h-[600px] relative rounded-lg overflow-hidden">
+      <div className="flex-1 relative rounded-lg overflow-hidden min-h-[400px]">
         <DeckGL
           initialViewState={INITIAL_VIEW_STATE}
           controller={true}
@@ -173,9 +173,11 @@ export function ComparisonMap({ month1 = '2024-01', month2 = '2024-02', hideCont
       </div>
       
       {/* Comparison Table */}
-      <div className="mt-6">
-        <ComparisonTable stats={categoryStats} month1={internalMonth1} month2={internalMonth2} />
-      </div>
+      {!hideControls && (
+        <div className="mt-6">
+          <ComparisonTable stats={categoryStats} month1={internalMonth1} month2={internalMonth2} />
+        </div>
+      )}
     </div>
   );
 }
