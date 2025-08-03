@@ -64,14 +64,37 @@ const comparisonData = [
 
 export default function Dashboard() {
   const [activeTab, setActiveTab] = useState<"historical" | "compare">("historical")
-  const [firstPeriod, setFirstPeriod] = useState("2024-01")
-  const [secondPeriod, setSecondPeriod] = useState("2024-02")
+  
+  // Calculate current month and total months since 2018
+  const currentDate = new Date()
+  const currentYear = currentDate.getFullYear()
+  const currentMonth = currentDate.getMonth() + 1
+  const startYear = 2018
+  const totalMonths = (currentYear - startYear) * 12 + currentMonth
+  
+  // Set initial periods to January 2019 and July 2025
+  const [firstPeriod, setFirstPeriod] = useState("2019-01")
+  const [secondPeriod, setSecondPeriod] = useState("2025-07")
+  
   const [realMonthlyData, setRealMonthlyData] = useState(monthlyData)
   const [monthlyLoading, setMonthlyLoading] = useState(false)
   const [realTrendData, setRealTrendData] = useState(trendData)
   const [trendLoading, setTrendLoading] = useState(false)
   const [mapData, setMapData] = useState<{ longitude: number; latitude: number; weight: number }[]>([])
   const [mapLoading, setMapLoading] = useState(false)
+
+  // Helper functions to convert between slider value and date
+  const sliderToDate = (value: number): string => {
+    const monthsFromStart = value - 1
+    const year = Math.floor(monthsFromStart / 12) + startYear
+    const month = (monthsFromStart % 12) + 1
+    return `${year}-${String(month).padStart(2, "0")}`
+  }
+  
+  const dateToSlider = (dateStr: string): number => {
+    const [year, month] = dateStr.split("-").map(Number)
+    return (year - startYear) * 12 + month
+  }
 
   useEffect(() => {
     if (activeTab === "historical") {
@@ -305,6 +328,10 @@ export default function Dashboard() {
               </div>
             </CardHeader>
             <CardContent className="space-y-4 flex-1">
+              <div className="text-xs text-slate-400 mb-2">
+                Date Range: January 2018 - {new Date(currentYear, currentMonth - 1).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+              </div>
+              
               {/* First Period */}
               <div className="space-y-3">
                 <label className="text-sm font-medium text-slate-300">First Period</label>
@@ -312,9 +339,9 @@ export default function Dashboard() {
                   <input
                     type="range"
                     min="1"
-                    max="12"
-                    value={Number.parseInt(firstPeriod.split("-")[1])}
-                    onChange={(e) => setFirstPeriod(`2024-${e.target.value.padStart(2, "0")}`)}
+                    max={totalMonths}
+                    value={dateToSlider(firstPeriod)}
+                    onChange={(e) => setFirstPeriod(sliderToDate(Number(e.target.value)))}
                     className="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer slider"
                   />
                   <div className="absolute -bottom-6 left-1/2 transform -translate-x-1/2 text-sm text-blue-400 bg-blue-500/20 px-2 py-1 rounded border border-blue-500/30">
@@ -330,9 +357,9 @@ export default function Dashboard() {
                   <input
                     type="range"
                     min="1"
-                    max="12"
-                    value={Number.parseInt(secondPeriod.split("-")[1])}
-                    onChange={(e) => setSecondPeriod(`2024-${e.target.value.padStart(2, "0")}`)}
+                    max={totalMonths}
+                    value={dateToSlider(secondPeriod)}
+                    onChange={(e) => setSecondPeriod(sliderToDate(Number(e.target.value)))}
                     className="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer slider"
                   />
                   <div className="absolute -bottom-6 left-1/2 transform -translate-x-1/2 text-sm text-purple-400 bg-purple-500/20 px-2 py-1 rounded border border-purple-500/30">
