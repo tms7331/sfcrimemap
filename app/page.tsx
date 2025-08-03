@@ -269,7 +269,7 @@ export default function Dashboard() {
               </div>
               <Badge className="bg-slate-500/20 text-slate-300 border-slate-500/30 hover:bg-slate-500/30">
                 <CalendarDays className="h-3 w-3 mr-1" />
-                {mapLoading ? "Loading..." : `${mapData.length} incidents`}
+                {mapLoading ? "Loading..." : "Last 2 Weeks"}
               </Badge>
             </div>
           </CardHeader>

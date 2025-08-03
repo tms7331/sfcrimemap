@@ -31,7 +31,18 @@ export function CrimeMap({ data }: CrimeMapProps) {
       data,
       getPosition: (d: CrimeData) => [d.longitude, d.latitude],
       getWeight: (d: CrimeData) => d.weight || 1,
-      radiusPixels: 40,
+      radiusPixels: 50,
+      intensity: 1.2,
+      threshold: 0.02,
+      colorRange: [
+        [65, 182, 196, 80],    // Light teal, more visible
+        [50, 166, 240, 120],   // Blue, transparent
+        [94, 79, 162, 160],    // Purple, semi-transparent
+        [171, 71, 188, 180],   // Light purple, less transparent
+        [236, 64, 122, 200],   // Pink-red, slightly opaque
+        [255, 20, 50, 240],    // Bright red, mostly opaque
+      ],
+      aggregation: 'SUM',
     })
   ];
 
